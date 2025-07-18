@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Based Puzzle Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Post Based Puzzle Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "6 soldiers (Jatin, Karan, Lokesh, Manoj, Nayan, Oman) are posted on different posts i.e. Field marshal, Chief marshal, Marshal, Captain, Major and Colonel from senior to junior. Oman and Karan are senior to Jatin but not just senior. Manoj is junior to Lokesh, who is junior to Jatin. Karan is not chief marshal.",
+                questions: [
+                    { question: "Who holds the post of Captain?", options: ["Oman", "Karan", "Nayan", "Jatin", "Lokesh"], answer: 3 },
+                    { question: "Who is the most senior (Field Marshal)?", options: ["Oman", "Karan", "Nayan", "Jatin", "Cannot be determined"], answer: 0 }
+                ]
+            },
+            {
+                statement: "Seven employees A, B, C, D, E, F and G of a College have posts of Clerk, Accountant, Librarian, Lecturer, HOD, Assistant Director (AD) and Director (seniority in that order). A is senior to G (not Accountant). C is senior to E but junior to F. B is senior to Accountant but junior to D (not HOD). A is senior to Lecturer. C is senior to A and D is junior to F.",
+                questions: [
+                    { question: "Who is the Director?", options: ["A", "C", "D", "E", "F"], answer: 4 },
+                    { question: "What is the post of B?", options: ["Librarian", "Lecturer", "HOD", "Accountant", "Clerk"], answer: 0 }
+                ]
+            },
+            {
+                statement: "Eight persons E to L work in a bank on different posts: Zonal Manager (ZM), Regional Manager (RM), Manager, Assistant Manager (AM), SO, PO, Clerk and Peon (senior to junior). K and H are senior to F and L. Only one post is between K and I. More than two posts are between L and E. G is not PO. Only four posts are between L and F.",
+                questions: [
+                    { question: "Who is the Regional Manager (RM)?", options: ["H", "K", "L", "I", "G"], answer: 1 },
+                    { question: "What is the designation of G?", options: ["Manager", "AM", "SO", "Clerk", "Peon"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Eight persons (A to H) work in a Company on different posts: CEO, State Head, ZM, AZM, RM, Manager, AM and Team Leader (senior to junior). The number of persons senior to H is equal to the number of persons junior to F. G is senior to B. More than four posts are between H and B. Only two posts are between G and E. D is senior to H. G is senior to C. A is not Regional Manager.",
+                questions: [
+                    { question: "Who is the CEO?", options: ["A", "D", "G", "H", "E"], answer: 1 },
+                    { question: "How many persons are junior to G?", options: ["Two", "Three", "Four", "Five", "Six"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Nine persons J-R work in a company at different posts: MD, CEO, COO, CFO, CTO, CMO, CLO, Manager and Clerk (senior to junior). The number of posts between J and K is one less than between R and K. L is junior to M but his post is not near to N's post. J is not CMO. Only two persons are between L and Q who is two posts senior to M. Four posts are between P and N where N is junior to P. O is two posts junior to N.",
+                questions: [
+                    { question: "Who is the CFO?", options: ["Q", "P", "M", "L", "J"], answer: 2 },
+                    { question: "What is the post of R?", options: ["CMO", "CLO", "Manager", "Clerk", "CTO"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Seven employees (Pawan, Qabil, Ritesh, Santosh, Tanu, Umang, Vivek) of a College are Director, AD, HOD, Lecturer, Librarian, Accountant, Clerk (senior to junior). Qabil is senior to Accountant but junior to Santosh (not HOD). Pawan is senior to Vivek (not Accountant). Ritesh is senior to Tanu but junior to Umang. Pawan is senior to Lecturer. Ritesh is senior to Pawan and Santosh is junior to Umang.",
+                questions: [
+                    { question: "Who is the HOD?", options: ["Pawan", "Qabil", "Ritesh", "Santosh", "Tanu"], answer: 0 },
+                    { question: "Who is the most junior employee (Clerk)?", options: ["Qabil", "Tanu", "Umang", "Vivek", "Santosh"], answer: 1 }
+                ]
+            },
+            {
+                statement: "8 employees (J to Q) are working in HSBC in posts: GM, DGM, AGM, Manager, AM, PO, Cashier and Clerk (senior to Junior). O is not the most senior. J is senior to K and M. M is senior to Q. O is senior to L and P. P is not senior to N. N is neither GM nor AGM but is senior to AM. K is senior to a maximum of 5 persons. K is senior to L but is neither DGM nor Manager. L is senior to PO. M is not PO. O is not DGM.",
+                questions: [
+                    { question: "Who is the General Manager (GM)?", options: ["J", "N", "K", "O", "L"], answer: 0 },
+                    { question: "What is the post of M?", options: ["AM", "PO", "Cashier", "Clerk", "Manager"], answer: 2 }
+                ]
+            },
+            {
+                statement: "9 persons A-I work at posts: MD, CEO, COO, CFO, CTO, CMO, Manager, HR and Clerk (senior to junior). Three persons are between F and H, where H is senior to F but junior to D. D is not the MD. A is senior to B and junior to E, who is the CEO. As many persons are junior to A as are senior to G. B is not the HR. One post is between G and I.",
+                questions: [
+                    { question: "Who is the MD?", options: ["D", "E", "C", "G", "H"], answer: 2 },
+                    { question: "What is the designation of I?", options: ["CTO", "CMO", "Manager", "HR", "Clerk"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Eight employees (A-H) of a College are Clerk, Accountant, Librarian, Lecturer, HOD, AD, Director and CEO (junior to senior). Only H is senior to F. B is senior to Accountant but junior to D (not HOD). A is senior to Lecturer. C is senior to A and D is junior to F. A is senior to G (not Accountant). C is senior to E but junior to F.",
+                questions: [
+                    { question: "Who is the Assistant Director (AD)?", options: ["A", "C", "D", "E", "F"], answer: 1 },
+                    { question: "Who is the most junior employee (Clerk)?", options: ["A", "B", "E", "G", "D"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Nine Persons (N to V) work in a Company on posts: Director, CEO, CFO, Manager, AM, LT, Admin, Peon and Clerk (senior to junior). R is only senior to V. O is senior to S who is senior to Admin. N is senior to S but is not CEO. Q is junior to CEO but senior to P. U is junior to N who is senior to R. P is senior to AM. T is either Director or Peon.",
+                questions: [
+                    { question: "Who is the CEO?", options: ["N", "O", "P", "Q", "U"], answer: 3 },
+                    { question: "What is the designation of U?", options: ["CFO", "Manager", "AM", "LT", "Admin"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Nine persons (N-V) work in the film industry as Director, Choreographer, Producer, Assistant director, Actor, Poet, Singer, Dancer and Support staff (senior to junior). V is support staff. O is immediately senior to S. The number of persons between O and Q is the same as between Q and N. T is junior to R. T is not a Dancer. P is neither Producer nor immediately junior to N. U is immediately junior to the Assistant director. Only two persons are posted between U and S.",
+                questions: [
+                    { question: "Who is the Producer?", options: ["N", "R", "T", "P", "S"], answer: 2 },
+                    { question: "Who is immediately senior to P?", options: ["Q", "U", "R", "S", "N"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Eight players (K-R) are in the CSK Team with posts: Coach, Batting Coach, Bowling Coach, Fielding Coach, Team leader, Batsman, Bowler and All-rounder (senior to junior). L is not immediately senior to M. The number of players senior to O is the same as junior to L. L is two players senior to Q. P is senior to M. N is four players senior to R, who is not an All-rounder. Only one player is between N and O, who is immediately junior to K.",
+                questions: [
+                    { question: "Who is the Coach?", options: ["K", "L", "N", "O", "P"], answer: 4 },
+                    { question: "What is the post of M?", options: ["Batsman", "Bowler", "All-rounder", "Team leader", "Fielding Coach"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Ten persons have designations: MD, GM, DGM, AGM, Manager, AM, PO, Cashier, Clerk, Peon (senior to junior). Only R is senior to Q. Three designations are between N and R. One designation is between H and N. As many designations between H and R as persons senior to K. T is just senior to O but junior to K. The number of designations between P and S is one more than between M and S. S is not peon.",
+                questions: [
+                    { question: "Who is the General Manager (GM)?", options: ["R", "Q", "N", "H", "K"], answer: 1 },
+                    { question: "How many designations are there between K and P?", options: ["None", "One", "Two", "Three", "Four"], answer: 2 }
+                ]
+            },
+            {
+                statement: "5 persons (Naveen, Ojash, Pranay, Karan, Rinku) work as Manager, Principal, Teacher, Accountant and Clerk (senior to junior). They have different working hours (3, 4, 5, 6, 7). Naveen is senior to the Accountant but junior to the one who works 7 hours. Rinku is junior to Pranay but senior to the one who works 6 hours. Pranay's working hour is not the lowest. Karan is senior to Rinku, who is just junior to the one working 5 hours. Sum of Pranay's and Rinku's work hours equals Karan's. Karan is not the Principal.",
+                questions: [
+                    { question: "Who is the Principal?", options: ["Naveen", "Ojash", "Pranay", "Karan", "Rinku"], answer: 2 },
+                    { question: "What are the working hours of the Teacher?", options: ["3", "4", "5", "6", "7"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Seven employees (A-G) have ranks: Chairman, MD, HOD, SM, AM, Clerk, Peon (senior to junior). They like different colours. G does not belong to the top three ranks. F is Chairman and likes Yellow. The Clerk likes red. C's designation is higher than D's. C likes blue. The one who likes Green is three ranks higher than the one who likes red. G likes white. E is 2 ranks lower than F. The one with the 3rd lowest designation likes Black. Neither A nor B likes Black. The SM likes pink.",
+                questions: [
+                    { question: "Who is the SM?", options: ["A", "B", "C", "D", "G"], answer: 1 },
+                    { question: "Which colour does D like?", options: ["Yellow", "Blue", "Green", "Pink", "Black"], answer: 4 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

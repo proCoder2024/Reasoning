@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Double Row Puzzle Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Double Row Puzzle Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "10 members (P-Z) sit in two rows of 5. Row 1 faces South, Row 2 faces North. Consecutive alphabets are not in the same row, nor do they face each other. P faces south and sits 3rd to the right of the one who faces S. Two people sit between Q and the one who faces T, but Q is not near S. The one who faces P sits 2nd to the left of the one who faces R, but P does not face Q. X sits 2nd to the left of Z, but X does not face P or Q. V is not near the one who faces Y.",
+                questions: [
+                    { question: "Who sits at the extreme right end of the South-facing row?", options: ["P", "Q", "R", "W", "V"], answer: 3 },
+                    { question: "Who faces T?", options: ["S", "W", "X", "Y", "Z"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Twelve friends sit in two parallel rows of six. Row 1 (M, N, O, P, Q, R) faces South. Row 2 (U, V, W, X, Y, Z) faces North. More than two persons are between Y and W. Neither P nor M sits at any end of the row. Y does not sit at any end. Q is not an immediate neighbor of P but faces X, who sits to the left of V. W and U are immediate neighbors. Z faces neither O nor R. O does not face V. P sits third to the right of M.",
+                questions: [
+                    { question: "Who sits opposite to N?", options: ["U", "V", "W", "X", "Y"], answer: 0 },
+                    { question: "Who sits at the extreme left end of the North-facing row?", options: ["Z", "X", "W", "U", "V"], answer: 3 }
+                ]
+            },
+            {
+                statement: "14 members are in two rows of 7. Row 1 (A-G) faces South, Row 2 (P-V) faces North. A's neighbor faces V. P is 2nd to the left of Q and 4th to the right of V. C's neighbor faces Q, who is opposite F. E is 2nd to the right of the person opposite P. E's neighbor faces R, who is 2nd to the left of T. D is 3rd to the right of B. A is opposite U.",
+                questions: [
+                    { question: "Who sits third to the left of G?", options: ["A", "B", "C", "D", "E"], answer: 2 },
+                    { question: "Who sits opposite to S?", options: ["A", "B", "C", "D", "G"], answer: 1 }
+                ]
+            },
+            {
+                statement: "In two rows of 7, Row 1 (L,T,P,O,K,M,U) faces South and Row 2 (J,B,S,X,V,N,W) faces North. P sits to the immediate left of the person who is 4th to the right of M. K sits opposite the person 4th to the right of B. B sits 2nd to the left of W and to the immediate right of N. T sits opposite S and 3rd to the right of O. L sits opposite V. B sits opposite U.",
+                questions: [
+                    { question: "Who sits at the extreme right end of the South-facing row?", options: ["M", "K", "O", "P", "L"], answer: 0 },
+                    { question: "Who sits opposite to J?", options: ["O", "P", "K", "M", "T"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Ten members are in two rows of 5. Row 1 faces South, Row 2 faces North. I is not a neighbor of B. A's neighbor faces E. One member is between E and H, who is at a corner. Two members are between C and F, who is not at a corner. G is not a neighbor of A or E. D faces south and is opposite E. J is not a neighbor of H. B is 3rd to the right of the person opposite A.",
+                questions: [
+                    { question: "Who is sitting opposite to I?", options: ["J", "H", "B", "C", "E"], answer: 3 },
+                    { question: "Which five people are in the North-facing row?", options: ["A,D,F,G,I", "B,C,E,H,J", "A,C,D,F,I", "B,E,G,H,J", "A,B,C,D,E"], answer: 1 },
+                    { question: "Who sits second to the right of H?", options: ["B", "E", "I", "J", "G"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Eight persons sit in parallel rows of four. Row 1 (A,B,C,D) faces North, Row 2 (P,Q,R,S) faces South. Each belongs to a different country (Japan, USA, Canada, Egypt, Cuba, Iran, Italy, China). The one from Iran sits 2nd to the left of R. One person sits between B and A. B faces neither R nor the one from Iran. The one from Egypt sits to the immediate right of A and at an extreme end. S faces C, who sits 2nd to the right of the one who faces the one from Japan. P faces the one from Cuba. D sits to the left of the one from Canada. Q and the one from Italy are not in the same row. The one from China is not adjacent to S.",
+                questions: [
+                    { question: "Who belongs to the USA?", options: ["P", "Q", "R", "S", "A"], answer: 1 },
+                    { question: "The person from Italy faces whom?", options: ["P", "Q", "R", "S", "D"], answer: 2 }
+                ]
+            },
+            {
+                statement: "There are 12 members in two rows of 6. Some face North, some South. X is 2nd left of Y and 2nd right of J. B is immediate right of A and immediate left of C. Y is just left of K and P. M is 2nd left of B and 3rd left of C. O is immediate right of X and 2nd right of P. X faces North. T is 4th to the right of M and immediate right of Z. B, T, and O face South.",
+                questions: [
+                    { question: "Who sits at the extreme left end of the row with Z?", options: ["J", "O", "P", "Y", "Z"], answer: 4 },
+                    { question: "How many people in the row with A are facing North?", options: ["One", "Two", "Three", "Four", "Five"], answer: 2 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

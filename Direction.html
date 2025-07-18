@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direction Sense Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Direction Sense Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "Vijaya starts walking north from point A. After walking 10km, she takes a right turn and covers 7km to reach point B. Then she takes a right turn and covers 5km. Thereafter she moves west and walks 10km, then takes a left turn and walks 7km to reach point C. Finally, she turns left and walks 10km to reach point D.",
+                questions: [
+                    { question: "What is the shortest distance between point D and point B?", options: ["10km", "7km", "12km", "13km", "5km"], answer: 3 },
+                    { question: "In which direction is point A with respect to point C?", options: ["North", "North-East", "South-East", "East", "North-West"], answer: 1 },
+                    { question: "What is the shortest distance between the starting point A and final point D?", options: ["√149 km", "√153 km", "12 km", "√151 km", "√145 km"], answer: 0 }
+                ]
+            },
+            {
+                statement: "Eight persons A, B, C, D, E, F, G and H are sitting at some distance. A is 13m north of C. G is 6m east of F, who is 11m north of E. D is 8m west of E. B is 8m east of C. G is 25m north of H. C is 10m south of D.",
+                questions: [
+                    { question: "G is in which direction with respect to A?", options: ["South-West", "North-East", "West", "East", "South-East"], answer: 1 },
+                    { question: "What is the shortest distance between F and H?", options: ["√61m", "√361m", "√401m", "√421m", "20m"], answer: 2 },
+                    { question: "What is the position of B with respect to E?", options: ["South", "North", "South-West", "North-West", "East"], answer: 2 }
+                ]
+            },
+            {
+                statement: "There are nine Houses: A, B, C, D, E, F, G, H and I. D is 2m east of B. A is 1m north of B and H is 2m south of A. F is 1m west of H while E is 3m east of F and C is 2m north of E. I is situated just in the middle of B and D while G is just in the middle of H and E.",
+                questions: [
+                    { question: "Point I is in which direction and how far from point G?", options: ["North, 2m", "South, 1m", "East, 1m", "West, 1m", "North, 1m"], answer: 4 },
+                    { question: "What is the shortest distance between House A and House C?", options: ["√2 m", "√3 m", "2 m", "√5 m", "3 m"], answer: 3 },
+                    { question: "Which house is to the south-west of C?", options: ["A", "B", "H", "F", "I"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Point A is 5m south of point L. Point H is 6m east of point A. Point J is 5m north of point H. Point O is 10m west of point J. Point N is 5m north-east of point O and north of point L. Point K is 10m west of point L.",
+                questions: [
+                    { question: "What is the distance between point N and point A?", options: ["3m", "8m", "4m", "5m", "None of these"], answer: 3 },
+                    { question: "In which direction is point K with respect to point H?", options: ["North-East", "South-East", "North", "South-West", "North-West"], answer: 4 },
+                    { question: "What is the shortest distance between point K and point J?", options: ["16m", "18m", "20m", "22m", "24m"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Rahul and Vivek start from point Z. Vivek moves 4m north to point A, then 5m right to point B, then 4m right to point C, then 7m left to point D, then 5m right to point E. Rahul moves 5m west from Z, then 3m left, then 3m left, then 2m right to reach point Y.",
+                questions: [
+                    { question: "What is the shortest distance between point Y and point E?", options: ["13m", "14m", "15m", "17m", "16m"], answer: 3 },
+                    { question: "In which direction is Rahul's final position (Y) with respect to Vivek's final position (E)?", options: ["North-East", "South-East", "North-West", "South-West", "South"], answer: 3 },
+                    { question: "What is the distance between Rahul's starting point (west of Z) and Vivek's final position (E)?", options: ["20m", "21m", "22m", "23m", "24m"], answer: 1 }
+                ]
+            },
+            {
+                statement: "5 cars A, B, C, D and E are parked in a straight line. The distance between each adjacent car is a successive multiple of 3. Car A is to the immediate left of car B. The distance between A and B is a multiple of 11 (33). The distance between B and C is 75m, and only 1 car is between them. The distance between D and E is a multiple of both 9 and 11 (99). Car D is to the left of E.",
+                questions: [
+                    { question: "What is the distance between A and E?", options: ["99m", "66m", "69m", "54m", "None of these"], answer: 2 },
+                    { question: "What is the total distance between the first and last car in the row?", options: ["150m", "180m", "210m", "240m", "270m"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Vimal and Tarun start from point A. Vimal walks 5m east to B, then 4m left to C, then 3m right to D. Tarun walks 5m north from A to J, then 4m right to K, then 7m right to L, then 4m left to M.",
+                questions: [
+                    { question: "What is the shortest distance between point D and point M?", options: ["5m", "6m", "8m", "4m", "None of these"], answer: 0 },
+                    { question: "In which direction is Tarun's final position (M) with respect to Vimal's final position (D)?", options: ["North-East", "South-East", "North-West", "South-West", "South"], answer: 1 },
+                    { question: "What is the total distance Tarun walked?", options: ["18m", "20m", "22m", "24m", "26m"], answer: 1 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

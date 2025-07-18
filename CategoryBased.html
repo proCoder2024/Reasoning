@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Based Puzzle Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Category Based Puzzle Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "7 persons (P to V) are purchasing different products i.e. Laptop, Mobile and Computer. Minimum 2 persons purchase same products. Neither P nor S is purchasing Mobile. S purchases a product with only 1 other person. Neither V nor Q purchase a product with S. R and P are purchasing same products but do not purchase Mobile. U does not purchase mobile. Q purchases Laptop. T does not purchase Computer.",
+                questions: [
+                    { question: "Who among the following purchases with S?", options: ["P", "T", "U", "V", "Q"], answer: 2 },
+                    { question: "Which product does V purchase?", options: ["Laptop", "Mobile", "Computer", "Cannot be determined", "None of these"], answer: 1 },
+                    { question: "Which group of people purchases Laptops?", options: ["P, R, U", "Q, T, V", "P, Q, R", "S, U", "V, T"], answer: 2 }
+                ]
+            },
+            {
+                statement: "9 Friends A, B, C, D, E, F, G, H and J are working in three departments: Robotic, Technical and Marketing. No. of friends in each department is different but not less than 2. D and G are in same department but not in Robotic. C and H are in different departments but not in Marketing. All Vowel named friends (A, E) are in different departments but not in Technical. F and H are in same department but not in Technical. J and E are in same department in which lowest no. of friends working. B and C are not in same department.",
+                questions: [
+                    { question: "Who is in the Marketing department?", options: ["D, G, C", "J, E", "F, H, B, A", "C, J, E", "Cannot be determined"], answer: 1 },
+                    { question: "Which department has the most employees?", options: ["Robotic", "Technical", "Marketing", "Both Robotic and Technical", "Cannot be determined"], answer: 0 },
+                    { question: "Which of the following group works in the Technical department?", options: ["J, E", "D, G, C", "F, H, B, A", "A, E", "D, G, B"], answer: 1 }
+                ]
+            },
+            {
+                statement: "10 players I, J, K, L, M, N, O, P, Q and R play for three different teams- RCB, CSK and KKR. Number of players in each team is different but not less than two. Q and N play for same team but not for CSK; Q does not play for RCB. L and K play for different teams but not for RCB. M and L do not play for same team. All Vowel named players (I, O) play for different Teams but not for KKR. P and K play for same team but not for KKR. J and O play in same team. J and O play for that team which has the least number of players.",
+                questions: [
+                    { question: "How many players play for CSK?", options: ["2", "3", "4", "5", "Cannot be determined"], answer: 3 },
+                    { question: "Who plays for KKR?", options: ["J, O", "Q, N, L", "M, R, P, K, I", "L, M, R", "I, P, K"], answer: 1 },
+                    { question: "Which team does I play for?", options: ["RCB", "CSK", "KKR", "Cannot be determined", "None of these"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Eight persons - J, K, L, M, N, O, P and Q were graduated in different years - 2013, 2023 and 2032. At least two persons were graduated in the same year. M was graduated in 2023. P and M were graduated in different years. J was graduated in a year which was a multiple of three (i.e. sum of digits). J and N were graduated in the same year. L was graduated in a leap year with K. Q and O were graduated in the same year. P and Q were graduated in different years.",
+                questions: [
+                    { question: "In which year did P graduate?", options: ["2013", "2023", "2032", "Cannot be determined", "None of these"], answer: 2 },
+                    { question: "How many people graduated in 2023?", options: ["Two", "Three", "Four", "Five", "Cannot be determined"], answer: 1 },
+                    { question: "Which group of people graduated in 2013?", options: ["J, N", "L, K, P", "M, Q, O", "J, M, P", "N, Q, L"], answer: 0 }
+                ]
+            },
+            {
+                statement: "8 persons (J to Q) are born in different years i.e. 2035, 2039 and 2043. Consecutive alphabet persons do not born in same year. N is neither born in 2035 nor in Q's year. P is born in that year which is a multiple of 5. L is neither born in J's year nor in N's Year. M is neither born in Q's year nor in K's year. K does not born in that year which is a multiple of 3 (sum of digits).",
+                questions: [
+                    { question: "In which year is O born?", options: ["2035", "2039", "2043", "Same as J", "Same as L"], answer: 2 },
+                    { question: "Which group was born in 2035?", options: ["Q, O, L", "N, K", "P, M, J", "P, K, Q", "L, M, N"], answer: 2 },
+                    { question: "Who among the following was born in 2039?", options: ["P", "M", "J", "K", "Q"], answer: 3 }
+                ]
+            },
+            {
+                statement: "9 persons (J to R) are watching different movies i.e. PUSHPA, RRR and BHOOL BHULAIYA 3. Minimum 2 persons are watching same movie. J and K neither watch same movie nor watch BHOOL BHULAIYA 3. L and M watch same movie but do not watch PUSHPA. The total number of persons who watch PUSHPA is more than those who watch BHOOL BHULAIYA 3. O watches movie only with 1 person but does not watch BHOOL BHULAIYA 3. P watches PUSHPA but not with O. N watches movie with J but not with M. R does not watch PUSHPA.",
+                questions: [
+                    { question: "Who watches BHOOL BHULAIYA 3?", options: ["N, J, P, Q", "K, O", "L, M, R", "P, K", "O, R"], answer: 2 },
+                    { question: "Which movie did Q watch?", options: ["PUSHPA", "RRR", "BHOOL BHULAIYA 3", "Cannot be determined", "Same as R"], answer: 0 },
+                    { question: "How many people watched PUSHPA?", options: ["2", "3", "4", "5", "Cannot be determined"], answer: 2 }
+                ]
+            },
+            {
+                statement: "9 Children F, G, H, I, J, K, L, M and N are born in three different years 2024, 2028 and 2030. No child is born alone in any year. K was born before G. The children whose name's place value is a prime number (G, K, M) are born in different years. G and N are born in same year. I does not born in 2024. M is born with two other children in a leap year. K and L are born together in a year in which maximum number of children are born but not with I and F. J is born with H.",
+                questions: [
+                    { question: "Who was born in 2030?", options: ["K, L, I, F", "M, J, H", "G, N", "G, N, F", "K, L, M"], answer: 2 },
+                    { question: "In which year was J born?", options: ["2024", "2028", "2030", "Same as I", "Cannot be determined"], answer: 1 },
+                    { question: "Which group was born in the year with the maximum number of children?", options: ["M, J, H", "G, N", "K, L, I, F", "F, G, H, I", "K, L, J, H"], answer: 2 }
+                ]
+            },
+            {
+                statement: "8 persons A, B, C, D, E, F, G, H work in three departments Marketing, Finance and HR. In each department, a different number of persons work. D and H work in different departments but not in Finance. H does not work with C. C and G work in same department but not in Finance. B works neither with H nor with D. E and F work in different departments. A and E work together but not with C. The maximum number of persons do not work in HR. A is not working with B.",
+                questions: [
+                    { question: "Who works in the Finance department?", options: ["A, E, H", "C, G, F, D", "B", "B, F", "Cannot be determined"], answer: 2 },
+                    { question: "How many people work in the Marketing department?", options: ["1", "2", "3", "4", "5"], answer: 3 },
+                    { question: "Which of the following pairs work in the same department?", options: ["A, B", "C, D", "E, F", "G, H", "A, E"], answer: 4 }
+                ]
+            },
+            {
+                statement: "9 Friends A, B, C, D, E, F, G, H and I are working at three different posts in a bank viz. SO, PO and Manager. Only two posts have the same number of friends working. D is not an SO. A and G work at same post but not as Manager. F and D work at different posts but not as PO. C is working as a Manager. B is not working with F but E works with F. H is an SO and B is a PO.",
+                questions: [
+                    { question: "How many people work as an SO?", options: ["2", "3", "4", "5", "Cannot be determined"], answer: 3 },
+                    { question: "Who among the following is a Manager?", options: ["A", "B", "E", "F", "D"], answer: 4 },
+                    { question: "Which of the following group of people are at the same post?", options: ["A, B, C", "D, E, F", "A, G, H", "E, F", "B, D, I"], answer: 3 }
+                ]
+            },
+            {
+                statement: "9 Persons L, M, N, O, P, Q, R, S and T are going to a destination by three vehicles- CAR, BIKE and SHIP. T is not going by SHIP. R is going neither with Q nor with S. L is going neither with M nor with N. N is going with O. P is not going by BIKE but going with M. L is going with only one person. S is going by SHIP but not with Q who is going with P. Maximum one person is going with S but S is not going with L.",
+                questions: [
+                    { question: "Who is going by SHIP?", options: ["L, R", "P, M, Q, N, O, T", "S", "S, T", "Cannot be determined"], answer: 2 },
+                    { question: "Which vehicle is T using?", options: ["CAR", "BIKE", "SHIP", "Same as R", "Cannot be determined"], answer: 0 },
+                    { question: "How many people are going by CAR?", options: ["1", "2", "4", "5", "6"], answer: 4 }
+                ]
+            },
+            {
+                statement: "Ten candidates attend interviews in three towers: One, Two and Three. At least three candidates are in each tower. Both X and U attend in the same tower but not in tower Two. L is neither in the same tower as X nor in tower One. The maximum number of candidates attend interview with L. Q and R are in the same tower but not with L. D, G and H are in the same tower. M and N are in tower Two and tower One respectively.",
+                questions: [
+                    { question: "In which tower do D, G, and H attend the interview?", options: ["One", "Two", "Three", "Same as L", "Cannot be determined"], answer: 1 },
+                    { question: "Who is in Tower One?", options: ["X, U, N", "Q, R, M", "L, D, G, H", "N, Q, R", "X, U, L"], answer: 3 },
+                    { question: "Which tower has the maximum number of candidates?", options: ["One", "Two", "Three", "Both One and Two", "Cannot be determined"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Ten persons fill three different tanks - Red, White, and Blue. At least two persons fill the same tank and at most five. A and D fill different tanks but not the Blue tank. Only R and P fill one of the tanks. T and S fill the tank which is filled by the maximum number of persons but not with K. E and D fill the same tank but not the Red tank. O and G fill the same tank.",
+                questions: [
+                    { question: "Which tank is filled by only R and P?", options: ["Red", "White", "Blue", "Cannot be determined", "None of these"], answer: 2 },
+                    { question: "Who is in the White tank along with E and D?", options: ["A", "T", "S", "O", "K"], answer: 4 },
+                    { question: "How many people fill the Red tank?", options: ["2", "3", "4", "5", "Cannot be determined"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Seven girls are going to different cities by one of three vehicles: Train, Bus, Aeroplane. At least two persons go by each vehicle. Eira doesn't go to Mumbai. Banty and Divya go by same vehicle but not by Bus. Fatima and the person who goes to Jaipur go by same vehicle. Arti goes to Chandigarh. Chavi goes to Delhi but not by Aeroplane. Only Eira and the person who goes to Chandigarh (Arti) are going by Bus. Fatima doesn't go to Jaipur. Fatima and Garima go by different vehicles. Persons going to Kanpur and Jhansi go by same vehicle. Divya neither goes to Jaipur nor Kanpur. Garima doesn't go to Bangalore.",
+                questions: [
+                    { question: "Who goes to Bangalore?", options: ["Arti", "Banty", "Chavi", "Divya", "Eira"], answer: 4 },
+                    { question: "Which vehicle does Fatima take?", options: ["Train", "Bus", "Aeroplane", "Same as Chavi", "Cannot be determined"], answer: 2 },
+                    { question: "What is Divya's destination?", options: ["Mumbai", "Jaipur", "Kanpur", "Jhansi", "Delhi"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Nine ladies - M, N, O, P, Q, R, S, T and U sell three different products- Candle, Baskets, and Baby cradle. At least two ladies but not more than four ladies sell each product. O sells with R. T neither sells Basket nor Baby cradle. O and T do not sell same products. M and U sell same products. N sells with only P. Neither O nor Q sell same products. S does not sell with U and T. O does not sell baskets.",
+                questions: [
+                    { question: "Who sells Baskets?", options: ["O, R, S", "T, U, M, Q", "N, P", "S, T, U", "M, Q"], answer: 2 },
+                    { question: "Which product does T sell?", options: ["Candle", "Basket", "Baby cradle", "Same as N", "Cannot be determined"], answer: 0 },
+                    { question: "Which group of ladies sells Baby cradles?", options: ["N, P", "T, U, M, Q", "O, R, S", "M, U, T", "S, P, N"], answer: 2 }
+                ]
+            },
+            {
+                statement: "11 persons (A-K) are going to Four different countries - India, Sri Lanka, Bhutan, Nepal. At least two persons go to each country. D and K are going to same country but not with F. H is going with only one person to Nepal but not with F. A and G are going to same country but neither India nor Sri Lanka. C and D go to different countries but not Sri Lanka. J is not going to Sri Lanka. Only three persons go to India. C goes with J. E, A, H and J are going to different countries. E is going with I but not to Bhutan.",
+                questions: [
+                    { question: "Who is going to Nepal with H?", options: ["A", "B", "C", "D", "F"], answer: 1 },
+                    { question: "Which country are D and K going to?", options: ["India", "Sri Lanka", "Bhutan", "Nepal", "Cannot be determined"], answer: 2 },
+                    { question: "How many people are going to Sri Lanka?", options: ["2", "3", "4", "5", "Cannot be determined"], answer: 0 },
+                    { question: "Which group is going to India?", options: ["E, I", "A, G, D, K", "H, B", "J, C, F", "D, K, B"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Seven friends A, B, C, D, E, F and G travel by three different bikes: Ducati, KTM and FZ. At least two persons travel on each bike. They all like different colours: Red, Blue, Black, Purple, White, Brown and Pink. B likes Purple and travels with C but not on a Ducati. A travels on a KTM but not with C. C likes Brown. D does not travel with B or A. A likes Red. E, who likes Black, travels with only D. Persons who like Brown and Pink travel on the same bike. One of the persons on the KTM likes Blue, but that person is not F.",
+                questions: [
+                    { question: "Who travels on the Ducati?", options: ["A, G", "B, C, F", "D, E", "A, D, E", "B, C"], answer: 2 },
+                    { question: "What colour does G like?", options: ["Red", "Blue", "White", "Pink", "Purple"], answer: 1 },
+                    { question: "Which bike does F travel on?", options: ["Ducati", "KTM", "FZ", "Same as A", "Cannot be determined"], answer: 2 },
+                    { question: "Which person likes the color White?", options: ["A", "B", "C", "D", "G"], answer: 3 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

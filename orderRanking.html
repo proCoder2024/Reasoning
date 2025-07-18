@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order & Ranking Quiz</title>
+    <link rel="stylesheet" href="style.css">
+ 
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Order & Ranking Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "Each of the six friends, A, B, C, D, E and F scored different marks in an examination. C scored more than only A. D scored less than only B. The one who scored the third highest marks scored 90 marks and E scored 50 marks.",
+                questions: [
+                    {
+                        question: "Who scored 3rd highest marks?",
+                        options: ["B", "D", "F", "E", "A"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who scored the lowest marks?",
+                        options: ["F", "E", "C", "A", "B"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "A, B, C, D and E are five friends. Each has different heights. A's height is twice as much as B. B's height is four times as much as C. C's height is half as much as D. E's height is 2.5 times as much as D.",
+                questions: [
+                    {
+                        question: "Who is longest among them?",
+                        options: ["B", "A", "C", "D", "E"],
+                        answer: 1
+                    },
+                    {
+                        question: "Who is shortest among them?",
+                        options: ["A", "D", "C", "B", "E"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                statement: "In an exam six students A, B, C, D, E, and F get different marks. F does not get the least marks. A gets more marks than only two students. E doesn't get the lowest. C gets 80% marks of what topper gets. B got more marks than A and E, but not the highest. The topper gets 50% of the total marks. B gets 37.5% of the total marks.",
+                questions: [
+                    {
+                        question: "Who gets 2nd highest marks?",
+                        options: ["F", "B", "C", "A", "D"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who gets the least marks?",
+                        options: ["C", "E", "A", "D", "F"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "Six boxes namely A, B, C, D, E and F have different weights. Weight of box C is more than box E but not more than box F and D. Weight of box B is more than box A but not more than box F. Weight of D is average weight of F and C. Weight of D is 76kg and weight of the one whose weight is fourth lightest is 64kg. Weight of box A is more than box C but not more than box D.",
+                questions: [
+                    {
+                        question: "Which box is 3rd heaviest box?",
+                        options: ["F", "D", "A", "B", "C"],
+                        answer: 3
+                    },
+                    {
+                        question: "Which box is the lightest?",
+                        options: ["B", "A", "C", "D", "E"],
+                        answer: 4
+                    }
+                ]
+            },
+            {
+                statement: "Amongst six students A, B, C, D, E, and F each got different marks. C got higher marks than E. The one who got 33% marks is 2nd lowest student. F got lesser marks than A and D. A got higher marks than B. F got higher marks than B and C. A did not get highest marks and C did not get 3rd lowest marks. The one, who got marks in between of D and F, got 82%.",
+                questions: [
+                    {
+                        question: "Who got lowest marks?",
+                        options: ["B", "C", "D", "F", "E"],
+                        answer: 4
+                    },
+                    {
+                        question: "Who got the highest marks?",
+                        options: ["A", "B", "D", "F", "C"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                statement: "There are 6 Students T, U, V, W, X and Y having different marks. At least two students get more marks than W. The average marks of V and T is equal to marks of U. V gets more marks than U. The average marks of Y and X is equal to marks of V. Y gets more marks than U but not highest. W gets less marks than U but not least.",
+                questions: [
+                    {
+                        question: "Who gets highest marks?",
+                        options: ["V", "U", "Y", "X", "T"],
+                        answer: 3
+                    },
+                    {
+                        question: "Who gets the least marks?",
+                        options: ["T", "W", "U", "Y", "X"],
+                        answer: 0
+                    }
+                ]
+            },
+            {
+                statement: "8 Girls A, B, C, D, E, F, G and H have different heights. C is taller than G but shorter than A. D is shorter than B but taller than E. Height of C is 130 cm and height of B is 168 cm. D is taller than A but shorter than H. E is third shortest and F is taller than B and shorter than only tallest girl.",
+                questions: [
+                    {
+                        question: "Who is second shortest girl?",
+                        options: ["A", "G", "C", "H", "E"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who is the tallest girl?",
+                        options: ["F", "B", "A", "H", "D"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "6 players (B to G) are scoring different run. B scores 1/4 more than C's score. B scores 50. Maximum 2 players score less than F. D scores 1.5 times of E's score but scores 3/4 of C's score. F scores less than G's score but does not score 2nd last. G scores more than C's score but does not score highest. E scores less than F.",
+                questions: [
+                    {
+                        question: "Who scored the highest?",
+                        options: ["G", "C", "F", "D", "B"],
+                        answer: 4
+                    },
+                    {
+                        question: "Who scored the 4th highest?",
+                        options: ["B", "G", "F", "C", "D"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                statement: "Seven students in a class scored different marks. D does not score maximum marks. Not more than two students scored higher than F. Three students scored in between F and G. D scored more than E. Not more than two students scored lower than A who scores less than D. B scored more than C but less than D. Minimum one person scores between D and B. C does not score 2nd lowest marks.",
+                questions: [
+                    {
+                        question: "Who among the following scores 2nd lowest marks?",
+                        options: ["F", "E", "G", "A", "C"],
+                        answer: 3
+                    },
+                    {
+                        question: "Who scored the highest marks?",
+                        options: ["D", "E", "F", "B", "G"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                statement: "Three employees Amit, Chetan and Dinesh are standing in a row. There are 7 employees between Amit and Chetan and 10 employees between Chetan and Dinesh. There are 5 employees ahead of Dinesh and 27 employees behind Amit.",
+                questions: [
+                    {
+                        question: "Find out the Maximum number of people in the row.",
+                        options: ["51", "55", "52", "36", "None of these"],
+                        answer: 2
+                    },
+                    {
+                        question: "Find out the Minimum number of people in the row.",
+                        options: ["51", "55", "52", "36", "None of these"],
+                        answer: 3
+                    }
+                ]
+            }
+        ];
+
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            // Create a deep copy of the problems
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            
+            // Shuffle the order of the main problems
+            shuffleArray(shuffledProblems);
+
+            // Flatten the problems into a single question array for the quiz logic
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            // Shuffle options for each individual question
+            activeQuizData.forEach(question => {
+                const correctAnswerText = question.options[question.answer];
+                shuffleArray(question.options);
+                question.answer = question.options.findIndex(option => option === correctAnswerText);
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

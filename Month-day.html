@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Month, Day & Year Puzzle Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Month, Day & Year Puzzle Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "Seven products (B, C, D, E, F, G, H) are sold from Monday to Sunday. Only two products are sold between F and G, which is sold immediately before D. More than three products are sold after F. The number of days after G is sold is the same as the number of days before E is sold. Only one product is sold between E and C. B is sold before H but not on Monday.",
+                questions: [
+                    { question: "Which product is sold on Tuesday?", options: ["C", "F", "E", "B", "G"], answer: 1 },
+                    { question: "How many products are sold between C and D?", options: ["One", "Two", "Three", "Four", "None"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Eight persons (I to P) take a test on the 14th or 21st of four months (April, June, August, October). Only three persons take the test between L and I. N takes the test immediately after I. K takes the test on an even date but after N. The number of persons taking the test before K is the same as after M. J takes the test after P. O takes the test on an even date of a month with an even number of days. Only one person takes the test between O and L.",
+                questions: [
+                    { question: "Who takes the test on June 21st?", options: ["O", "P", "I", "N", "M"], answer: 1 },
+                    { question: "On which date does M take the test?", options: ["April 14", "April 21", "June 14", "August 14", "October 21"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Seven persons (T, U, V, W, X, Y, Z) were born in 1989, 1992, 2003, 2006, 2009, 2012, 2014. Ages are calculated based on 2023. Only two persons were born between V and W. The age difference between T and W is 6 years. As many persons were born before Z as after Y. V's age is a multiple of 2. Only one person was born between Z and X. Z is not elder than Y. X is not the youngest.",
+                questions: [
+                    { question: "Who is the eldest person?", options: ["T", "U", "V", "W", "Y"], answer: 4 },
+                    { question: "What is the age of X?", options: ["34", "31", "20", "14", "9"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Eight persons (N to U) retire in Jan, Apr, Jun, Jul, Sep, Oct, Nov, Dec of the same year. The number of persons retired before S is the same as after U. R retires two months before P. The number of persons retired between T and S is the same as between R and P. N retires in a month with an even number of days. Q retires two persons before N. Only two persons retire between Q and S.",
+                questions: [
+                    { question: "In which month does T retire?", options: ["January", "April", "June", "July", "October"], answer: 1 },
+                    { question: "Who retires in September?", options: ["S", "U", "R", "O", "P"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Seven hotels (K to Q) deliver food on seven different days starting from Monday. The number of hotels delivering before P is the same as after K. Only two hotels deliver between K and M. L delivers on a day after M. O delivers on a day before N. Q was not delivered immediately after O. Q delivers three days before P. Neither P nor Q delivers on Thursday.",
+                questions: [
+                    { question: "Which hotel delivers on Saturday?", options: ["K", "M", "L", "P", "Q"], answer: 3 },
+                    { question: "How many hotels deliver between O and M?", options: ["One", "Two", "Three", "Four", "None"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Nine persons (B-J) get a job in different years: 1999, 2004, 2006, 2007, 2010, 2013, 2017, 2020, 2021. Two persons get the job between H and I. Three persons get the job between J and D. Two persons get the job between B and C, where one of them gets it first. As many persons get the job between C and B as between B and D. G gets the job after F and before E, but not immediately before E. H gets the job in a leap year.",
+                questions: [
+                    { question: "In which year did G get the job?", options: ["2006", "2010", "2013", "2017", "2020"], answer: 2 },
+                    { question: "Who got the job in 2006?", options: ["B", "C", "D", "F", "J"], answer: 4 }
+                ]
+            },
+            {
+                statement: "Nine web-series (A-I) are released in Jan, Feb, Apr, May, Jun, Aug, Sep, Nov, Dec. One web-series is between A and I (released in a 31-day month). The number of series between I and D is two less than between B and E. E is released before I. At least two series are between B and H. G is released in a 30-day month but before August. Two series are between G and D, which is released three months before F. The number of series released after F is the same as before A.",
+                questions: [
+                    { question: "Which web-series is released in September?", options: ["A", "I", "D", "C", "H"], answer: 3 },
+                    { question: "How many web-series are released between E and B?", options: ["One", "Two", "Three", "Four", "None"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Seven persons (A-G) attend a reasoning class from Sunday to Saturday. The number of persons attending before D is the same as after G. B attends immediately before F and after E. The number of persons between D and E is one less than between D and B. F attends after D. A attends before Wednesday but not on Sunday. Only one person attends between A and C, who doesn't attend on Sunday.",
+                questions: [
+                    { question: "Who attends the class on Friday?", options: ["A", "B", "C", "D", "E"], answer: 1 },
+                    { question: "On which day does G attend the class?", options: ["Monday", "Tuesday", "Wednesday", "Thursday", "Saturday"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Eight persons (P-W) were born in 1984, 1987, 1993, 1996, 1999, 2001, 2004, 2006. Ages are based on 2024. As many persons are elder than P as younger than V. The age difference between W and T is one year more than between P and Q. Q was born in an odd year but is younger than P. The age difference between P and W is more than five years. U was two years elder than S. Only two persons were born between U and P.",
+                questions: [
+                    { question: "In which year was R born?", options: ["1984", "1987", "1993", "1996", "1999"], answer: 0 },
+                    { question: "Who is 25 years old?", options: ["P", "Q", "R", "S", "V"], answer: 4 }
+                ]
+            },
+            {
+                statement: "Eight bikes are launched in Jan, Feb, Mar, Apr of two years: 1992 and 1996. Hero was launched in an odd-day month but not after 1993. Two bikes were launched between Hero and Honda. KTM was launched between Hero and Honda but not in an odd-day month. Bikes launched before KTM is same as after Bajaj. Three bikes are between Bajaj and FZ. Revolt was launched immediately before Suzuki. More than two bikes are between Revolt and TVS.",
+                questions: [
+                    { question: "Which bike was launched in April 1992?", options: ["Hero", "Honda", "KTM", "Revolt", "TVS"], answer: 2 },
+                    { question: "Which bike was launched immediately after Bajaj?", options: ["Hero", "Honda", "Revolt", "Suzuki", "TVS"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Six players (Q-V) play on the 8th or 21st of Jan, Apr, Jun. They play in different cities (Indore, Pune, M.P, H.P, Patna, U.P). Q plays two players before the one in M.P. At least three players play after Q. Two players are between Q and T. Players before T is same as players after the one in Indore. V plays immediately after the one in U.P. V does not play in M.P or H.P. S plays on an even date but after Q. U plays neither in Indore nor M.P. R plays immediately before the one in Patna.",
+                questions: [
+                    { question: "Who plays in Pune?", options: ["Q", "R", "S", "T", "V"], answer: 4 },
+                    { question: "On which date does T play?", options: ["Jan 8", "Jan 21", "Apr 8", "Jun 8", "Jun 21"], answer: 4 }
+                ]
+            },
+            {
+                statement: "Six friends (K, S, D, H, Y, W) purchased flats on different days from Monday to Sunday, with one off day. K and W purchased on consecutive days. S purchased on the starting day (Monday). Neither D nor Y purchased on the last day. D purchased before Y, but not on consecutive days. D doesn't purchase on a day consecutive with K or H. H purchased on Friday. There is a one day gap between H and K's purchase day.",
+                questions: [
+                    { question: "On which day was the off day?", options: ["Tuesday", "Wednesday", "Thursday", "Saturday", "Sunday"], answer: 1 },
+                    { question: "Who purchased the flat on Saturday?", options: ["K", "S", "D", "H", "W"], answer: 4 }
+                ]
+            },
+            {
+                statement: "Seven persons (P-V) visit flower events (Rose, Lily, Jasmine, Gainda, Mogra, Tulip, Lotus) in Jan, Feb, Apr, May, Jun, Aug, Sep. No one visits after V (Tulip). The person visiting in June visits Lotus. The Lily visitor visited immediately before Q. U visits two persons before T; both visit in months with the same number of days. One person is between U and the Jasmine visitor. T does not visit Jasmine. P neither visits Lily, Gainda, nor Mogra, nor in a month with less than 31 days. Two persons are between S and Q, where one of them visits in a month with less than 30 days.",
+                questions: [
+                    { question: "Who visits the Rose event?", options: ["P", "Q", "R", "S", "T"], answer: 0 },
+                    { question: "Which event does T visit?", options: ["Rose", "Jasmine", "Gainda/Mogra", "Lotus", "Lily"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Six persons (K-P) buy different color pages (Red, Green, Orange, Blue, Pink, Yellow) from Monday to Saturday. One day is between the Pink page buyer and M. The Green page is bought immediately before the Orange page. M does not buy the Orange page. K bought immediately before the Yellow page buyer. Neither N nor O bought the Red page. N bought before O but not before L. P bought three days before the Blue page buyer. The number of persons who bought before P is the same as after M.",
+                questions: [
+                    { question: "Who bought the Red page?", options: ["K", "L", "M", "N", "P"], answer: 1 },
+                    { question: "On which day was the Blue page bought?", options: ["Wednesday", "Thursday", "Friday", "Saturday", "Tuesday"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Six persons (M-R) like different colors and participate in an event on the 6th or 15th of March, June, August. P participates three persons before the one who participates immediately after the one who likes Blue. P does not participate on an even-numbered date. M does not like Blue. The one who likes White participates immediately before O. Q likes neither Green nor Red. The one who likes Red participates in the same month as Q. Neither P nor Q likes Black. M participates in a month with an even number of days, two persons after the one who likes Green. R participates on an odd number date but after M.",
+                questions: [
+                    { question: "Who likes the Pink color?", options: ["M", "N", "O", "P", "Q"], answer: 3 },
+                    { question: "Who participates on June 6th?", options: ["N", "P", "M", "R", "Q"], answer: 2 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

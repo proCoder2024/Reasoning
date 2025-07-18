@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flat & Floor Based Puzzle Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Flat & Floor Based Puzzle Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "11 persons (M to W) live in an 11-floor building (1-11). Only 3 persons live between M and P, who lives on the 4th floor above W. W does not live on the 2nd floor. O lives 2 floors below N, who lives immediately below M. Only 4 persons live between U and R, who lives above W. U lives above R. S lives below W but above T. V does not live on an odd-numbered floor.",
+                questions: [
+                    { question: "Who lives on the 5th floor?", options: ["P", "Q", "R", "S", "V"], answer: 1 },
+                    { question: "How many people live between U and P?", options: ["None", "One", "Two", "Three", "Four"], answer: 1 },
+                    { question: "Who lives on the topmost floor?", options: ["M", "N", "U", "O", "P"], answer: 0 },
+                    { question: "Which floor does V live on?", options: ["2", "4", "6", "8", "10"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Ten person K-T are living in a building having 5 floors and on each floor there are two flats like Flat 1 (West) and Flat 2 (East). The topmost floor is 5. N lives three floors above P in a different flat. K lives southeast of N but not immediately. There is a two floor gap between Q and K and both live in the same flat. The number of floors above Q is one less than the number of floors below O, who doesn't live on the same floor as K. L lives southwest of M who doesn't live on the same floor as N. The number of floors between L and S is the same as between R and T who lives below L.",
+                questions: [
+                    { question: "Who lives in Flat 1 on Floor 3?", options: ["L", "M", "N", "O", "S"], answer: 3 },
+                    { question: "Which pair of people live on the 2nd floor?", options: ["N, S", "R, Q", "O, M", "L, P", "T, K"], answer: 3 },
+                    { question: "Who lives in the flat immediately above T's flat?", options: ["O", "M", "L", "P", "K"], answer: 2 },
+                    { question: "Which of the following statements is true?", options: ["S lives in Flat 1", "R lives on an odd-numbered floor", "M lives in Flat 2", "P lives in Flat 1", "T and O live in the same flat"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Six persons (A, B, C, D, E, F) live on an 8-floor building (1-8). Two floors are vacant, and no two consecutive floors are vacant. C lives on a prime number floor and three floors away from E, who lives below C. B doesn't live on a floor adjacent to E. Two people live between E and F, who does not live below E. A person named G lives immediately above B's floor. One person lives between G and A. B does not live on an even-numbered floor.",
+                questions: [
+                    { question: "Who lives on the topmost floor (Floor 8)?", options: ["A", "B", "C", "E", "F"], answer: 4 },
+                    { question: "Who lives on the floor immediately below A?", options: ["F", "C", "E", "Vacant", "G"], answer: 3 },
+                    { question: "Which two floors are vacant?", options: ["2 and 5", "3 and 5", "3 and 6", "5 and 7", "2 and 6"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Eight members (W, C, D, E, F, G, H, J) live on an 11-floor building (1-11), where 3 floors are vacant. C lives on an even-numbered floor above E. There are 3 floors between G and H, and H lives below G. There are 3 members between J and E, and J lives above E. Floor number 8 is vacant, and D lives on floor number 7. J lives below H. F lives above W, and there are 4 persons between F and G.",
+                questions: [
+                    { question: "Who lives on the 10th floor?", options: ["C", "E", "G", "H", "J"], answer: 2 },
+                    { question: "Which person lives on the bottom-most floor that is not vacant?", options: ["W", "E", "H", "J", "C"], answer: 0 },
+                    { question: "Which three floors are vacant?", options: ["1, 8, 10", "2, 8, 9", "5, 8, 11", "6, 8, 9", "5, 8, 9"], answer: 4 }
+                ]
+            },
+            {
+                statement: "Eight persons (M, L, J, C, P, K, N, Z) live in two different flats (Flat 1 West, Flat 2 East) of a four-floor building (1-4). P lives to the north-east of K and lives below M. C lives to the south of K. M and J live on the same floor. L's flat is immediately above N's flat. M and N live in different types of flats.",
+                questions: [
+                    { question: "Who lives in Flat 1 on floor 4?", options: ["M", "J", "Z", "K", "C"], answer: 0 },
+                    { question: "Which pair lives on the 2nd floor?", options: ["M, J", "Z, P", "K, L", "C, N", "K, P"], answer: 2 },
+                    { question: "Who lives to the south-west of L?", options: ["P", "K", "C", "N", "Z"], answer: 2 }
+                ]
+            },
+            {
+                statement: "9 persons (H-P) live in a 3-floor building with 3 flats each (Flat-1 West, Flat-2, Flat-3 East). K does not live on the 1st floor. H's flat is just below P's flat. One floor is between P and N. L lives in the even-numbered flat on the even-numbered floor. One floor is between K and O, but they live in different flats. J's flat is just above I's flat. O is not to the east of N and does not live in the same flat as H. M lives to the east of N. No two vowel-named persons (I, O) live on the same floor.",
+                questions: [
+                    { question: "Who lives in Flat 3 on Floor 3?", options: ["J", "K", "P", "L", "M"], answer: 2 },
+                    { question: "In which flat and on which floor does I live?", options: ["Floor 3, Flat 1", "Floor 2, Flat 1", "Floor 1, Flat 2", "Floor 2, Flat 2", "Floor 3, Flat 2"], answer: 1 },
+                    { question: "Who are the three people living on the 1st floor?", options: ["J, K, P", "I, L, H", "O, N, M", "J, I, O", "H, M, N"], answer: 2 }
+                ]
+            },
+            {
+                statement: "8 persons live in a 40-story building, but only on floors which are multiples of 5 (5, 10, ..., 40). E lives on floor 30. E lives immediately above the one who is three floors away from D. C lives above D but not adjacent to E. A, an immediate neighbor of C, lives on a floor divisible by 4 and 5 (i.e. 20). The sum of the floors of B and F is not more than 40. F lives above B. G is not a neighbor of H and doesn't live above F.",
+                questions: [
+                    { question: "Who lives on the highest floor (40)?", options: ["A", "C", "F", "G", "H"], answer: 4 },
+                    { question: "What is the floor number of C?", options: ["5", "10", "15", "20", "25"], answer: 2 },
+                    { question: "How many floors are there between F and A?", options: ["One", "Two", "Three", "Four", "None"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Ten boxes are placed in a staggered formation with 4 rows. Row 1 has 1 box, Row 2 has 2, Row 3 has 3, and Row 4 has 4. Box F is to the immediate right of Box H, who is in an even-numbered row. Box C is just above Box F. Box B is just above the box which is to the immediate left of box E. Box B is on an odd-numbered row. Four boxes are between Box G and Box A, when odd-numbered rows are excluded. Box J is kept just above Box D. Only two boxes are kept between Box G and Box I.",
+                questions: [
+                    { question: "Which box is in Row 1?", options: ["B", "C", "G", "J", "A"], answer: 1 },
+                    { question: "Which box is in the rightmost position of Row 3?", options: ["I", "E", "A", "F", "B"], answer: 1 },
+                    { question: "Which three boxes are in Row 2?", options: ["B, H, F", "G, J, C", "J, H, F", "B, A, I", "D, E, A"], answer: 2 }
+                ]
+            },
+            {
+                statement: "8 bags (maize, rice, chana, wheat, moong, rajma, barley, corn) are stacked from 1-8 (bottom to top). Wheat bag is at the topmost position (8), just above the rice bag (7). Maize bag is at an odd position but not 1st. The number of bags between Corn and Rajma is equal to the number of bags between Barley and moong. Corn and barley are kept above rajma and moong respectively. Rajma bag is adjacent to the Maize bag. Chana is not adjacent to Barley. Barley is not at the 2nd position.",
+                questions: [
+                    { question: "Which bag is kept at the 4th position?", options: ["Barley", "Moong", "Chana", "Rajma", "Corn"], answer: 3 },
+                    { question: "How many bags are there between the Barley and Wheat bags?", options: ["One", "Two", "Three", "Four", "None"], answer: 0 },
+                    { question: "Which bag is immediately below the Maize bag?", options: ["Rajma", "Chana", "Corn", "Moong", "Barley"], answer: 0 }
+                ]
+            },
+            {
+                statement: "Six persons (D, J, K, L, M, V) live in a three-storey building with two flats (Flat-1 West of Flat-2). Each likes a different vegetable. One floor is between D and J (likes Peas). Both D and J live in the same flat number. D lives above L. The one who likes Brinjal lives west of the one who likes Radish. K lives on an odd-numbered floor and in an even-numbered flat. Neither D nor L likes Brinjal or Carrot. M lives north-west of V (likes Cauliflower). One person in Flat 1 likes Ladyfinger.",
+                questions: [
+                    { question: "Who likes Radish?", options: ["D", "K", "M", "L", "V"], answer: 3 },
+                    { question: "Who lives in Flat-1 on the 3rd floor?", options: ["D", "K", "M", "L", "J"], answer: 0 },
+                    { question: "Which of the following combinations is correct?", options: ["K-Carrot", "M-Peas", "L-Brinjal", "V-Ladyfinger", "D-Radish"], answer: 0 }
+                ]
+            },
+            {
+                statement: "6 persons (A-F) live in a 3-floor building with 2 flats (Flat-1 West of Flat-2) and have different professions. C's flat is just below Carpenter E's flat. One floor is between the Pilot and D (not an Advocate). The Manager lives above the CA but in a different Flat. F's flat is just above the Manager's flat (who is not A). The Advocate lives in flat-1, above the carpenter. The Doctor lives above the Pilot but in a different Flat.",
+                questions: [
+                    { question: "Who is the Pilot?", options: ["A", "B", "C", "D", "F"], answer: 0 },
+                    { question: "What is C's profession?", options: ["Doctor", "Pilot", "Manager", "Advocate", "CA"], answer: 4 },
+                    { question: "Who lives in Flat-2 on the 3rd floor?", options: ["Advocate", "Doctor", "Manager", "Pilot", "Carpenter"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Seven friends (A-G) are living on a 7-floor building. G lives on an even-numbered floor. More than two floors are between A and G. E lives above A. Three floors are between E and F. F is not a neighbour of A. D lives on an even-numbered floor. C lives below A. B does not live near D.",
+                questions: [
+                    { question: "Who lives on the 4th floor?", options: ["A", "B", "C", "D", "E"], answer: 3 },
+                    { question: "How many people live between A and F?", options: ["None", "One", "Two", "Three", "Four"], answer: 2 },
+                    { question: "Who lives on the floor immediately below G?", options: ["A", "B", "C", "D", "F"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Eight persons (A-H) live on eight different floors (1-8). B lives below C. E lives on an odd-numbered floor. There is at most one floor between B and F, who lives on an odd-numbered floor. There are at least six persons between A and H. The number of floors between A and C is the same as between G and C. There are at least four floors between B and G.",
+                questions: [
+                    { question: "Who lives on the 5th floor?", options: ["A", "C", "E", "G", "H"], answer: 2 },
+                    { question: "Who lives on the floor immediately above C?", options: ["D", "E", "F", "G", "H"], answer: 1 },
+                    { question: "How many people live between G and F?", options: ["One", "Two", "Three", "Four", "Five"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Eight persons (I-P) live on four different floors (1-4) with two flats (Flat-1 West, Flat-2 East). There is one floor between O and K in the same flat number. M lives on the same floor as K. L's flat is just above P's flat. L does not live on an even-numbered floor. I lives on a floor above J but not in the same flat number. I lives north-east of P.",
+                questions: [
+                    { question: "Who lives in Flat-2 on the 4th floor?", options: ["M", "K", "L", "I", "O"], answer: 1 },
+                    { question: "Who lives on the same floor as L?", options: ["M", "K", "I", "J", "N"], answer: 2 },
+                    { question: "Which of the following statements is true?", options: ["N lives on an odd floor", "J lives in Flat 2", "P and O live on the same floor", "M lives in Flat 2", "L lives on the 1st floor"], answer: 2 }
+                ]
+            },
+            {
+                statement: "Nine boxes (E-M) are placed on a nine-shelf rack (1-9). Only box M is placed near box J. Two boxes are between E and J. F is just above L. G is below M. Three boxes are between J and K, which is just above H. Both G and L are not on the bottom box. The number of boxes between M and K is the same as between I and H.",
+                questions: [
+                    { question: "Which box is on the 5th shelf?", options: ["E", "F", "G", "K", "M"], answer: 3 },
+                    { question: "How many boxes are placed between G and F?", options: ["One", "Two", "Three", "Four", "None"], answer: 2 },
+                    { question: "Which box is placed at the very top (shelf 9)?", options: ["I", "J", "M", "E", "F"], answer: 1 }
+                ]
+            },
+            {
+                statement: "11 boxes (J to T) are kept in a stack (1-11). S is kept above R but below P. S is on a prime-numbered box. 3 boxes are between S and L, which is 2 boxes below R. The number of boxes above R is 2 less than the number of boxes below P. The number of boxes between R and K is the same as between S and T. T is immediately below P. 1 box is between J and M, which is immediately above N. J is kept above K. O is kept above Q.",
+                questions: [
+                    { question: "Which box is at the 11th position?", options: ["P", "T", "J", "K", "O"], answer: 0 },
+                    { question: "How many boxes are between M and R?", options: ["One", "Two", "Three", "Four", "None"], answer: 1 },
+                    { question: "Which box is at the bottom-most position?", options: ["S", "T", "Q", "L", "N"], answer: 3 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

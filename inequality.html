@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantitative Reasoning Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Quantitative Reasoning: Inequality</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                statement: "P > L &le; M < N < Q < K = U < J",
+                conclusions: ["I. L > K", "II. L &le; U"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 3
+            },
+            {
+                statement: "M > K > L = T > R > F < C < W > E",
+                conclusions: ["I. F < K", "II. W < T"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 0
+            },
+            {
+                statement: "M &le; D < T &ge; B < E = L < N &le; U < J",
+                conclusions: ["I. M > L", "II. E &ge; M"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 3
+            },
+            {
+                statement: "H &ge; V &ge; D = G &ge; T > R > F < C < W > E",
+                conclusions: ["I. H > G", "II. R < V"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 1
+            },
+            {
+                statement: "R > F > Z = W &ge; U &ge; M &ge; E = J < T",
+                conclusions: ["I. Z = J", "II. W > E"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 2
+            },
+            {
+                statement: "B &ge; G = H < F < D &le; T; Q < W &le; H = E",
+                conclusions: ["I. B > Q", "II. D &ge; W"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 0
+            },
+            {
+                statement: "E < G = I < L; A > B < C &le; D < E",
+                conclusions: ["I. D < I", "II. L > B"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 4
+            },
+            {
+                statement: "X > W > S = Q; H < S &le; N = O &ge; Y",
+                conclusions: ["I. Q &le; O", "II. W &ge; O"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 0
+            },
+            {
+                statement: "L < A < J < Y &le; B > Q > T; G > K > X > F &ge; T",
+                conclusions: ["I. B > X", "II. K > A"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 3
+            },
+            {
+                statement: "U > G = I &ge; A &ge; L < K; N > R > F = E > K",
+                conclusions: ["I. R < G", "II. R &ge; I"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 2
+            },
+            {
+                statement: "X > P &ge; S = Q &le; E = R; T &le; Q &le; D = F < L",
+                conclusions: ["I. T < X", "II. L &le; R"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 0
+            },
+            {
+                statement: "C > P &ge; Z > U &le; Q; K &ge; A &ge; D &ge; C = R > B",
+                conclusions: ["I. R > U", "II. Z < K"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 4
+            },
+            {
+                statement: "X > H &ge; O = V > D = G; T &ge; R > D < C &le; W",
+                conclusions: ["I. W > V", "II. W &le; O"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 2
+            },
+            {
+                statement: "R &ge; F &ge; Z = W &ge; X &ge; U; E > Z &le; J < T",
+                conclusions: ["I. U < T", "II. J &ge; X"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 4
+            },
+            {
+                statement: "E &ge; X &ge; S &ge; L; T = B < K &le; A &le; L",
+                conclusions: ["I. T &le; X", "II. T > X"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 2
+            },
+            {
+                statement: "S &ge; U &ge; V = F; M &ge; E = J = V",
+                conclusions: ["I. V < M", "II. M = F"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 2
+            },
+            {
+                statement: "B > W = Q &ge; N < D &le; E; U > C < K < W",
+                conclusions: ["I. E > C", "II. E &le; C"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 2
+            },
+            {
+                statement: "M < Y &ge; N &ge; J; E &ge; R > N; J = P &ge; C",
+                conclusions: ["I. E > M", "II. C &le; Y"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 1
+            },
+            {
+                statement: "W < L > I; S > Q &le; H; L &le; Q < K",
+                conclusions: ["I. I &le; H", "II. K > W"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 1
+            },
+            {
+                statement: "U < W &le; L = X; I &ge; F = B &ge; L; W = T < S",
+                conclusions: ["I. F > U", "II. T &le; I"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 4
+            },
+            {
+                statement: "J > T &ge; R &ge; P; S &le; K < Z < P &ge; L > U",
+                conclusions: ["I. K < T", "II. R > U"],
+                options: ["Only II true", "Only I true", "Both true", "Either I or II true", "Neither I nor II true"],
+                answer: 2
+            },
+            {
+                statement: "C < L &ge; K &ge; G = M; G &ge; F = P < O",
+                conclusions: ["I. L > P", "II. L = F"],
+                options: ["Only II true", "Only I true", "Both true", "Either I or II true", "Neither I nor II true"],
+                answer: 3
+            },
+            {
+                statement: "N &ge; A &ge; L; R &le; K = L; I = O < P &le; R",
+                conclusions: ["I. N > P", "II. A &ge; O"],
+                options: ["Only II true", "Only I true", "Both true", "Either I or II true", "Neither I nor II true"],
+                answer: 2
+            },
+            {
+                statement: "N &ge; A &ge; L; R &le; K = L; I = O < P &le; R",
+                conclusions: ["I. N &ge; I", "II. N < I"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 0
+            },
+            {
+                statement: "Z = L &ge; K &ge; G = M; G &ge; F = P < O",
+                conclusions: ["I. Z > P", "II. L = F"],
+                options: ["Only conclusion I is true.", "Only conclusion II is true.", "Either I or II is true.", "Neither I nor II is true.", "Both conclusions I and II are true."],
+                answer: 2
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        // New Score Screen elements
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+
+        function startQuiz() {
+            activeQuizData = JSON.parse(JSON.stringify(quizData));
+            shuffleArray(activeQuizData);
+            activeQuizData.forEach(question => {
+                const correctAnswerText = question.options[question.answer];
+                shuffleArray(question.options);
+                question.answer = question.options.findIndex(option => option === correctAnswerText);
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Statements:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Conclusions:</strong> ${currentQuestion.conclusions.join('<br>')}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            // --- New Result Calculation and Display ---
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = Math.round((score / totalQuestions) * 100);
+
+            // Set performance message
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            // Update score circle
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+
+            // Update stat boxes
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        // Initial call to start the quiz
+        startQuiz();
+    </script>
+</body>
+</html>

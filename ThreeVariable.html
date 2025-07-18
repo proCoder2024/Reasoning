@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three Variable Puzzle Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Three Variable Puzzle Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "6 football players M, N, O, P, Q and R wearing six different colour T-shirts (Red, Green, Blue, White, Yellow, Black), and playing for 6 different clubs (A, B, C, D, E, F). O wears neither Black nor Yellow. The one who plays for D, wears neither Red nor Blue. R plays for club B but not wear the red coloured t-shirt. The one who wears Green coloured t-shirt, plays for club E. Neither N nor O plays for Club E. M wears White coloured T-shirt. P plays for club D. The one who plays for A, wears Black coloured t-shirt. Q plays for neither C nor F. The one who plays for C, wears Red t-shirt.",
+                questions: [
+                    {
+                        question: "Which player plays for club A?",
+                        options: ["M", "N", "O", "P", "Q"],
+                        answer: 1
+                    },
+                    {
+                        question: "What color T-shirt does player P wear?",
+                        options: ["Red", "Blue", "Yellow", "White", "Black"],
+                        answer: 2
+                    },
+                    {
+                        question: "Which of the following combination of Player-Club is correct?",
+                        options: ["M-A", "N-B", "O-D", "Q-E", "P-C"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "Seven persons - A, B, C, D, E, F and G belongs to seven different cities (Delhi, Kanpur, Patna, Mumbai, Kolkata, Chandigarh, Hyderabad). Each of them like different food (M, N, O, P, Q, R, S). C belongs to Kanpur and likes Q. A likes S. B likes neither O nor N. D belongs to Mumbai. Neither E nor F belongs to Kolkata. The one who belongs to Kolkata likes R. D likes neither M nor O. The one who likes N is either from Hyderabad or Chandigarh. F likes neither O nor M. B belongs to Chandigarh. The one who belongs to Patna does not like O.",
+                questions: [
+                    {
+                        question: "Who belongs to Delhi?",
+                        options: ["A", "B", "E", "F", "G"],
+                        answer: 2
+                    },
+                    {
+                        question: "Which food does B like?",
+                        options: ["M", "N", "P", "R", "S"],
+                        answer: 0
+                    },
+                    {
+                        question: "Which of the following combination of Person-City-Food is correct?",
+                        options: ["A-Patna-S", "B-Hyderabad-N", "D-Mumbai-M", "G-Kolkata-Q", "F-Delhi-P"],
+                        answer: 0
+                    }
+                ]
+            },
+            {
+                statement: "Six friends M, N, O, P, Q, and R belong to six different cities (Jaipur, Nainital, Chandigarh, Kolkata, Lucknow, Dehradun). They all like different games (Football, Cricket, Hockey, Chess, Tennis, Golf). The one who belongs to Lucknow, likes neither Tennis nor Cricket. R belongs to Chandigarh and likes Hockey. The one who belongs to Kolkata likes neither Football nor Cricket. P likes Golf. Q likes Chess and belongs to Dehradun. O likes Cricket and does not belong to Nainital. N and P neither belong to Kolkata nor Jaipur.",
+                questions: [
+                    {
+                        question: "Who belongs to Jaipur?",
+                        options: ["M", "N", "O", "P", "Q"],
+                        answer: 2
+                    },
+                    {
+                        question: "Which game does M like?",
+                        options: ["Football", "Cricket", "Tennis", "Chess", "Golf"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who likes Football?",
+                        options: ["M", "N", "O", "P", "The one from Lucknow"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                statement: "6 Friends A, B, C, D, E and F belong to 6 different Companies (ONGC, BHEL, BPCL, CIL, LIC, GAIL). They all like 6 different Colours (Red, Yellow, Orange, Violet, Grey, Black). C likes Violet while the one who is from BHEL likes Red. B belongs to BPCL. The persons who are from CIL and GAIL do not like Violet and Orange. B does not like Black and Orange. D likes Grey. Neither A nor F likes Red. F is not from GAIL. A does not like Black. The one who is from LIC does not like Orange.",
+                questions: [
+                    {
+                        question: "Who belongs to the company CIL?",
+                        options: ["A", "B", "D", "E", "F"],
+                        answer: 4
+                    },
+                    {
+                        question: "What color does B like?",
+                        options: ["Red", "Yellow", "Orange", "Grey", "Black"],
+                        answer: 1
+                    },
+                    {
+                        question: "Which of the following combinations is correct?",
+                        options: ["A-ONGC-Orange", "B-BPCL-Grey", "D-CIL-Black", "E-BHEL-Violet", "F-LIC-Red"],
+                        answer: 0
+                    }
+                ]
+            },
+            {
+                statement: "Six persons- Ajay, Vivek, Paru, Raja, Jatin and Kapil belong to different places (Lucknow, Delhi, Noida, Sitapur, Patna, Gandhinagar). Each has a different number of gems (5, 11, 13, 18, 19, 24). The difference in the number of gems of Paru and Vivek is equal to the number of gems of Kapil. The difference in the number of gems of Jatin and Kapil is 5. Paru belongs to Lucknow and has 11 gems. Ajay has the lowest number of gems. The person from Noida has more gems than Jatin. Vivek doesn't belong to Noida. The person from Sitapur has an even number of gems. The person from Delhi has more gems than the person from Sitapur. Ajay doesn't belong to Gandhinagar.",
+                questions: [
+                    {
+                        question: "Who has 19 gems?",
+                        options: ["Ajay", "Vivek", "Paru", "Raja", "Jatin"],
+                        answer: 3
+                    },
+                    {
+                        question: "Who belongs to Delhi?",
+                        options: ["Kapil", "Vivek", "Raja", "Jatin", "Ajay"],
+                        answer: 1
+                    },
+                    {
+                        question: "What is the total number of gems held by the person from Patna and Gandhinagar?",
+                        options: ["16", "18", "23", "24", "29"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                statement: "Seven persons L, M, N, O, P, Q and R belong to different Indian cities (Kanpur, Kolkata, Delhi, Lucknow, Bombay, Jaipur, Bangalore). Each has a different occupation (Peon, Clerk, P.O, Manager, Casher, Accountant, Supervisor). L is from Jaipur and he is Peon. Q is from Kolkata but he is neither a Clerk nor a Manager. M is from Kanpur and he is an Accountant. The one who is a Manager is not from Bangalore or Lucknow. P is from Delhi and he is a P.O. R is neither from Lucknow nor from Bombay. N is from Bombay. The one who is from Lucknow is neither Supervisor nor clerk.",
+                questions: [
+                    {
+                        question: "Who is the Manager?",
+                        options: ["L", "M", "N", "O", "R"],
+                        answer: 2
+                    },
+                    {
+                        question: "The person from Bangalore has which occupation?",
+                        options: ["Clerk", "Manager", "Casher", "Supervisor", "P.O."],
+                        answer: 0
+                    },
+                    {
+                        question: "Which of the following is the correct combination?",
+                        options: ["Q-Kolkata-Clerk", "R-Delhi-Manager", "O-Lucknow-Casher", "N-Jaipur-Supervisor", "P-Bombay-P.O."],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                statement: "7 students (C to I) are going to take admission in KVS school in a different city (M, N, O, P, Q, R, S) and in a different class (1st to 7th). E goes in city S but is not in class 1st or 3rd. The one who is in class 7th, goes in city P. D is in class 6th but is not in city M or Q. G goes in city R but is not in class 1st. F is in class 5th but does not go to city M. I goes in city O and is in class 4th. C does not go to city P.",
+                questions: [
+                    {
+                        question: "Who takes admission in class 5th?",
+                        options: ["E", "F", "G", "H", "I"],
+                        answer: 1
+                    },
+                    {
+                        question: "Which student goes to city P?",
+                        options: ["C", "D", "E", "F", "H"],
+                        answer: 4
+                    },
+                    {
+                        question: "In which city does D take admission?",
+                        options: ["M", "N", "Q", "R", "S"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                statement: "Six people, U, V, W, X, Y and Z, have different number of marbles (8, 12, 16, 18, 23, 31). Each person has only one type of coloured marbles (Red, Green, Black, Blue, White, Cyan). U has 23 Red marbles. W, who does not have Green marbles, has 4 more marbles than X. X has Blue marbles. The one with Black marbles has more marbles than the one with Green marbles. There are 31 Cyan marbles. Neither Y nor Z has Cyan colored marbles. Y, who has more marbles than Z, has at most 6 marbles more than Z.",
+                questions: [
+                    {
+                        question: "Who has the White colored marbles?",
+                        options: ["U", "V", "W", "X", "Y"],
+                        answer: 2
+                    },
+                    {
+                        question: "How many marbles does Z have?",
+                        options: ["8", "12", "16", "18", "31"],
+                        answer: 2
+                    },
+                    {
+                        question: "Which of the following is the correct combination?",
+                        options: ["V-Cyan-18", "W-White-16", "X-Blue-12", "Y-Black-18", "Z-Green-8"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "5 different families are going to a picnic. In each family there are only Mother, Son and Daughter. Mothers are A, B, C, D, E. Sons are I, O, P, Q, R. Daughters are U, V, W, X, Y. Each family has only one vowel named person and each family has only one person whose name's place value is a prime number. O is not the Son of B. V is not the Daughter of C and E but U is Sister of P. Y is not sister of R. B and C are not mother of I.",
+                questions: [
+                    {
+                        question: "Find the correct family combination.",
+                        options: ["A, Q, X", "E, R, V", "D, I, W", "B, O, W", "C, O, U"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who is the daughter of mother E?",
+                        options: ["U", "V", "W", "X", "Y"],
+                        answer: 3
+                    },
+                    {
+                        question: "Who is the son of mother A?",
+                        options: ["I", "O", "P", "Q", "R"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "6 persons (E to J) are going to different Malls (Spice, DLF, Logix, GIP, Gaur City, Wave) for buying different items (Mobile, Tablet, Laptop, Watch, Charger, Bulb). F neither goes to Spice nor Gaur City nor purchases Mobile or Bulb. The one who goes to DLF, purchases Watch. I purchases charger and goes to Logix. The one who purchases bulb, goes to GIP. E goes either to Wave or Spice but does not purchase Tablet. The one who purchases Mobile does not go to Wave. G purchases laptop. H purchases neither Tablet nor bulb.",
+                questions: [
+                    {
+                        question: "Who goes to the Wave mall?",
+                        options: ["E", "F", "G", "H", "J"],
+                        answer: 1
+                    },
+                    {
+                        question: "What item does E purchase?",
+                        options: ["Tablet", "Laptop", "Watch", "Mobile", "Charger"],
+                        answer: 3
+                    },
+                    {
+                        question: "The person who purchases the Laptop goes to which mall?",
+                        options: ["Spice", "DLF", "GIP", "Gaur City", "Wave"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "7 persons (A to G) have different numbers of pens (9, 11, 15, 17, 20, 22, 25) of different colors (Green, Saffron, Red, White, Blue, Black, Orange). A has neither 11 nor 15 pens but has a Green pen. C has neither Blue nor Orange pen. B has a Saffron pen but neither 9 nor 17 pens. F has 25 but not a Blue pen. D has a White pen but neither 15 nor 9. The one who has 11, has an Orange pen. E has either 22 or 17. The one who has 17, has a Red pen.",
+                questions: [
+                    {
+                        question: "Who has the Black pen?",
+                        options: ["A", "B", "C", "D", "F"],
+                        answer: 4
+                    },
+                    {
+                        question: "How many pens does C have?",
+                        options: ["9", "11", "15", "17", "20"],
+                        answer: 3
+                    },
+                    {
+                        question: "Which combination of Person-Pens-Color is correct?",
+                        options: ["A-20-Green", "B-22-Saffron", "E-17-Blue", "G-11-Orange", "D-15-White"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "7 persons (B to H) select players on Dream 11. The players are Dhoni, Rahane, Rohit, Mayank, Virat, Ashwin, Jadeja. The teams are CSK, Punjab, Mumbai, Delhi, Pune, Gujarat, Lucknow. D selects a player from Mumbai but not Ashwin or Mayank. F selects Virat who is not from Delhi. Neither E nor G selects Jadeja. Jadeja is from Lucknow. C selects Rahane who is from Punjab. Either B or H selects Dhoni. G selects either Ashwin or Mayank. G does not select a player from Pune or CSK. B does not select a player from Lucknow. Dhoni and Ashwin are not from Delhi. E does not select Ashwin but selects a player from Delhi. B does not select a player from CSK.",
+                questions: [
+                    {
+                        question: "Who selects the player from Gujarat?",
+                        options: ["B", "D", "E", "F", "G"],
+                        answer: 4
+                    },
+                    {
+                        question: "Which player is from CSK?",
+                        options: ["Dhoni", "Rohit", "Virat", "Mayank", "Jadeja"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who selects Jadeja?",
+                        options: ["B", "E", "G", "H", "D"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                statement: "7 buses (M-S) depart at different timings (6am, 7am, 9am, 11am, 12pm, 1pm, 3pm) to seven different destinations (Mumbai, Pune, Kolhapur, Thane, Mulund, Kalyan, Karjar). M, which travels to Thane, departs after P but not at 3pm. P doesn't travel to Mumbai, Kalyan or Karjar. O departs 3 hours before Q, which travels to Pune. S, which travels to Mulund, departs immediately after O. N departs 1 hour before R but not at 12pm. The bus to Kalyan departs after P. N doesn't travel to Mumbai. O travels after 11am.",
+                questions: [
+                    {
+                        question: "Which bus departs at 6am?",
+                        options: ["N", "R", "P", "M", "Q"],
+                        answer: 0
+                    },
+                    {
+                        question: "Which bus travels to Mumbai?",
+                        options: ["N", "R", "P", "S", "O"],
+                        answer: 1
+                    },
+                    {
+                        question: "What is the departure time for the bus to Thane?",
+                        options: ["7am", "9am", "11am", "12pm", "1pm"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                statement: "7 persons A-G are preparing for different exams (UPSC, Bank, SSC, Teaching, Defense, CA, Gate) and study for different hours (6, 8, 13, 10, 5, 16, 17). D (GATE) studies for 13 hours. The one preparing for Defense studies for 8 hours. G studies for 6 hours. F studies for more hours than only two people. B and C are not preparing for UPSC. The one preparing for UPSC studies for an odd number of hours. E studies for a prime number of hours but not for Bank or UPSC. Sum of hours for Defense and CA is two hours less than SSC. The one preparing for Teaching studies for more hours than C.",
+                questions: [
+                    {
+                        question: "Who is preparing for the Bank exam?",
+                        options: ["A", "B", "C", "E", "F"],
+                        answer: 1
+                    },
+                    {
+                        question: "How many hours does the person preparing for SSC study?",
+                        options: ["10", "13", "16", "17", "5"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who studies for 17 hours?",
+                        options: ["A", "B", "C", "E", "The one preparing for Teaching"],
+                        answer: 4
+                    },
+                    {
+                        question: "Which exam is G preparing for?",
+                        options: ["Bank", "SSC", "CA", "UPSC", "Teaching"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                statement: "7 persons A-G are preparing for different bank exams (IBPS PO, IBPS Clerk, SBI PO, SBI Clerk, RBI, RRB PO, RRB Clerk) and study for different hours (6, 8, 13, 10, 5, 16, 17). The one preparing for RBI studies for 8 hours. G studies for 6 hours. F studies for more hours than only two people. D (RRB Clerk) studies for 13 hours. B and C are not preparing for IBPS PO. The one preparing for IBPS PO studies for an odd number of hours. E studies for a prime number of hours but not for IBPS Clerk or IBPS PO. Sum of hours for RBI and RRB PO is two hours less than SBI PO. The one preparing for SBI Clerk studies for more hours than C. B does not study for a square number of hours.",
+                questions: [
+                    {
+                        question: "Who is preparing for IBPS PO?",
+                        options: ["A", "B", "C", "E", "G"],
+                        answer: 0
+                    },
+                    {
+                        question: "How many hours does B study for?",
+                        options: ["6", "8", "10", "16", "17"],
+                        answer: 2
+                    },
+                    {
+                        question: "Which of the following combinations is correct?",
+                        options: ["A-IBPS PO-5", "B-IBPS Clerk-16", "C-SBI PO-10", "E-SBI Clerk-13", "G-RRB PO-8"],
+                        answer: 0
+                    },
+                    {
+                        question: "Who studies for the maximum number of hours?",
+                        options: ["A", "C", "E", "The person preparing for SBI PO", "The person preparing for SBI Clerk"],
+                        answer: 4
+                    }
+                ]
+            },
+            {
+                statement: "6 person (A to F) are ordering different newspapers (Hindustan, Indian, Times, Josh, Jagaran, Hindu) from different suppliers (Anil, Aniket, Anurag, Ansul, Amol, Amit). C neither orders Indian nor Hindu but orders from Ansul. B either orders Indian or Hindustan. F orders Times but either from Amit or Amol. D orders Josh. The one who orders Jagaran, orders from Anurag. E does not order Hindu. The one who orders Josh, orders from either Amit or Anil. A orders from Anil.",
+                questions: [
+                    {
+                        question: "Which newspaper is ordered from Aniket?",
+                        options: ["Hindu", "Indian", "Josh", "Jagaran", "Times"],
+                        answer: 1
+                    },
+                    {
+                        question: "Who is the supplier for the Hindustan newspaper?",
+                        options: ["Anil", "Aniket", "Anurag", "Ansul", "Amol"],
+                        answer: 3
+                    },
+                    {
+                        question: "Which newspaper does A order?",
+                        options: ["Hindu", "Indian", "Josh", "Jagaran", "Times"],
+                        answer: 0
+                    }
+                ]
+            }
+        ];
+
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer,
+                        topic: problem.topic
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>

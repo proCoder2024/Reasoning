@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Quiz</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles for the launcher page */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--light-grey, #f4f4f9);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+        }
+        .launcher-card {
+            background-color: #fff;
+            padding: 40px 50px;
+            border-radius: var(--border-radius, 8px);
+            box-shadow: var(--box-shadow, 0 4px 15px rgba(0,0,0,0.1));
+            text-align: center;
+        }
+        .launcher-card h1 {
+            color: var(--dark-grey, #333);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        .launcher-card p {
+            color: var(--medium-grey, #666);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        #startButton {
+            background-color: var(--primary-color, #4a90e2);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: var(--border-radius, 8px);
+            font-size: 1.2em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #startButton:hover {
+            background-color: #357abd; /* A slightly darker shade for hover */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="launcher-card">
+        <h1>Test-1</h1>
+        <p>You are about to begin the test. Click the button below to start.</p>
+        <button id="startButton">Start Test</button>
+    </div>
+
+    <script>
+        // --- EDIT THIS LINE ---
+        // Paste the direct link to your quiz HTML file inside the quotes.
+        const quizUrl = "https://procoder2024.github.io/Reasoning/Direction.html";
+        // --------------------
+
+        const startButton = document.getElementById('startButton');
+        
+        startButton.addEventListener('click', function() {
+            startButton.textContent = 'Loading...';
+            window.location.href = quizUrl;
+        });
+    </script>
+
+</body>
+</html>

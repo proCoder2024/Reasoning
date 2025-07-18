@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Purchase Puzzle Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <div class="quiz-header">
+                <h1>Product Purchase Puzzle Quiz</h1>
+                 <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
+                <div class="timers-container">
+                    <div id="question-timer">Time: 00.00s</div>
+                    <div id="total-timer">Total: 00:00:00</div>
+                </div>
+            </div>
+
+            <div class="quiz-body">
+                <div id="question-container" class="question-content">
+                     <p class="statement"></p>
+                     <p class="conclusion"></p>
+                </div>
+                <ul class="options-list" id="options-list"></ul>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-container">
+            <h2 id="performance-message">Quiz Complete!</h2>
+            <div id="score-circle" class="score-circle">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Correct</h3>
+                    <p id="correct-answers">0 / 0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Incorrect</h3>
+                    <p id="incorrect-answers">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Time Taken</h3>
+                    <p id="final-time">00:00:00</p>
+                </div>
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizProblems = [
+            {
+                statement: "7 Persons (L, M, N, O, P, Q, R) purchase a gift one after another. L purchases before M, who purchases before N. Q purchases before R but after M. P purchases before M. Only one person purchases between N and O. O purchases after their nearest alphabet name person (N or P). Only one person purchases between P and Q, who purchases before N.",
+                questions: [
+                    { question: "Who purchases fourth?", options: ["L", "P", "M", "Q", "N"], answer: 3 },
+                    { question: "How many people purchase between L and R?", options: ["One", "Two", "Three", "Four", "Five"], answer: 3 }
+                ]
+            },
+            {
+                statement: "Seven persons (Q, R, S, T, U, V, W) buy products one after another. The number of persons buying before W is the same as after W. The number of persons buying before Q is the same as after R, but Q purchases before the maximum number of persons. Only 2 persons purchase between S and V, who purchases after U. T purchases after V but not adjacent to S.",
+                questions: [
+                    { question: "Who is the last person to buy a product?", options: ["S", "T", "U", "V", "R"], answer: 4 },
+                    { question: "Who purchases immediately after W?", options: ["S", "T", "U", "V", "R"], answer: 3 }
+                ]
+            },
+            {
+                statement: "10 persons (A-J) are buying products one after another. One person is between C and D. C is immediately before H. The number of persons buying after H is 1 less than before I. B is immediately after J. Two persons are between G and J. A is immediately before E. A maximum of two persons buy before F. Only one person is between D and F.",
+                questions: [
+                    { question: "Who buys the product first?", options: ["A", "E", "F", "I", "C"], answer: 2 },
+                    { question: "How many people buy products between I and G?", options: ["One", "Two", "Three", "Four", "None"], answer: 0 }
+                ]
+            },
+            {
+                statement: "A company purchases nine different bags (A, B, C, D, F, G, H, I, J) one after another. G was purchased exactly between F and J. B was purchased immediately after J, whereas A was purchased immediately before I. Two bags were between D and C, which was neither purchased before F nor at the last. D was not purchased after I. Not more than two bags were between H and G, which was purchased after H. F was immediately before H but is not purchased first.",
+                questions: [
+                    { question: "Which bag was purchased last?", options: ["I", "J", "B", "C", "A"], answer: 2 },
+                    { question: "How many bags were purchased between H and A?", options: ["One", "Two", "Three", "Four", "Five"], answer: 2 },
+                    { question: "Which bag was purchased at the fourth position?", options: ["H", "C", "G", "A", "I"], answer: 1 }
+                ]
+            },
+            {
+                statement: "Eight persons (R, T, U, V, W, X, Y, Z) purchase products one after another. Y purchases just before Z. One person purchases between Y and R. W purchases just before T. X purchases before V and after T. At most two persons purchase before U. Only one person purchases between R and U.",
+                questions: [
+                    { question: "Who purchases the product first?", options: ["W", "T", "U", "X", "R"], answer: 0 },
+                    { question: "Who purchases the product immediately after X?", options: ["R", "V", "Y", "Z", "U"], answer: 0 }
+                ]
+            },
+            {
+                statement: "Nine persons (A-I) purchase the same product one after another. One person is between A and I. Persons between G and I is the same as between A and B (who doesn't purchase last). More than three persons purchase after B, who purchases two persons after H. Persons before H is the same as after F, who purchases three persons after D. E purchases three persons before G, who is adjacent to A. None of E, G, A purchase first or last.",
+                questions: [
+                    { question: "Who purchases at the 5th position?", options: ["H", "E", "B", "D", "G"], answer: 3 },
+                    { question: "How many persons purchase between H and F?", options: ["One", "Two", "Three", "Four", "Five"], answer: 4 }
+                ]
+            },
+            {
+                statement: "Ten persons (P-Y) are buying a watch. At least two persons buy before Q, who buys two persons before R. The number of persons buying before T is the same as after S. The number of persons buying between S and R is the same as between X and T. W buys three persons before V, who does not buy adjacent to R. U buys immediately after P. Only two persons are buying between R and T, who buys after R.",
+                questions: [
+                    { question: "Who buys the watch at the very end?", options: ["R", "Y", "V", "T", "S"], answer: 2 },
+                    { question: "Who buys the watch first?", options: ["S", "P", "U", "X", "W"], answer: 0 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const quizContentEl = document.getElementById('quiz-content');
+        const scoreContainerEl = document.getElementById('score-container');
+        const statementEl = document.querySelector('.statement');
+        const conclusionEl = document.querySelector('.conclusion');
+        const optionsListEl = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const totalTimerEl = document.getElementById('total-timer');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const scoreCircleEl = document.getElementById('score-circle');
+        const scorePercentEl = document.getElementById('score-percent');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const finalTimeEl = document.getElementById('final-time');
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeQuizData = [];
+        let totalTimerInterval, questionTimerInterval;
+        let quizStartTime, questionStartTime;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function formatTotalTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .join(":");
+        }
+
+        function startQuiz() {
+            let shuffledProblems = JSON.parse(JSON.stringify(quizProblems));
+            shuffleArray(shuffledProblems);
+
+            activeQuizData = [];
+            shuffledProblems.forEach(problem => {
+                problem.questions.forEach(q => {
+                    activeQuizData.push({
+                        statement: problem.statement,
+                        question: q.question,
+                        options: q.options,
+                        answer: q.answer
+                    });
+                });
+            });
+
+            activeQuizData.forEach(question => {
+                if (question.options) {
+                    const correctAnswerText = question.options[question.answer];
+                    shuffleArray(question.options);
+                    question.answer = question.options.findIndex(option => option === correctAnswerText);
+                }
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreContainerEl.style.display = 'none';
+            quizContentEl.style.display = 'block';
+            nextBtn.style.display = 'none';
+            
+            quizStartTime = Date.now();
+            clearInterval(totalTimerInterval);
+            totalTimerEl.textContent = "Total: 00:00:00";
+            totalTimerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+                totalTimerEl.textContent = `Total: ${formatTotalTime(elapsedSeconds)}`;
+            }, 1000);
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            optionsListEl.innerHTML = '';
+            
+            questionStartTime = Date.now();
+            clearInterval(questionTimerInterval);
+            questionTimerEl.textContent = "Time: 00.00s";
+            questionTimerInterval = setInterval(() => {
+                const elapsedSeconds = ((Date.now() - questionStartTime) / 1000).toFixed(2);
+                questionTimerEl.textContent = `Time: ${elapsedSeconds}s`;
+            }, 100);
+
+            const currentQuestion = activeQuizData[currentQuestionIndex];
+            
+            statementEl.innerHTML = `<strong>Problem Statement:</strong> ${currentQuestion.statement}`;
+            conclusionEl.innerHTML = `<strong>Question:</strong> ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="option-char">${String.fromCharCode(97 + index)})</span> ${option}`;
+                li.dataset.index = index;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            });
+
+            updateProgress();
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(e) {
+            clearInterval(questionTimerInterval);
+
+            const selectedOption = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+            const correctAnswerIndex = activeQuizData[currentQuestionIndex].answer;
+
+            Array.from(optionsListEl.children).forEach(li => {
+                 li.removeEventListener('click', selectAnswer);
+                 li.style.cursor = 'default';
+                 li.classList.add('selected');
+            });
+
+            if (selectedAnswerIndex === correctAnswerIndex) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+                optionsListEl.children[correctAnswerIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+        
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / activeQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${activeQuizData.length}`;
+        }
+
+        function showFinalScore() {
+            clearInterval(totalTimerInterval);
+            clearInterval(questionTimerInterval);
+
+            quizContentEl.style.display = 'none';
+            scoreContainerEl.style.display = 'block';
+
+            const totalQuestions = activeQuizData.length;
+            const incorrect = totalQuestions - score;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+            if (percentage >= 80) {
+                performanceMessageEl.textContent = "Excellent Work! ✨";
+            } else if (percentage >= 60) {
+                performanceMessageEl.textContent = "Good Job! 👍";
+            } else {
+                performanceMessageEl.textContent = "Keep Practicing! 🧠";
+            }
+
+            scoreCircleEl.style.setProperty('--p', percentage);
+            scorePercentEl.textContent = `${percentage}%`;
+            correctAnswersEl.textContent = `${score} / ${totalQuestions}`;
+            incorrectAnswersEl.textContent = incorrect;
+            finalTimeEl.textContent = totalTimerEl.textContent.replace('Total: ', '');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizData.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        startQuiz();
+    </script>
+</body>
+</html>
